@@ -3,8 +3,12 @@ from transformers import pipeline
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-feedback_model=pipeline("text-classification",model="distilbert-base-uncased-finetuned-sst-2-english")
-
+from transformers import pipeline
+feedback_model = pipeline(
+    "text-classification",
+    model="typeform/distilbert-base-uncased-mnli",
+    framework=None
+)
 app=FastAPI()
 app.add_middleware(
     CORSMiddleware,
