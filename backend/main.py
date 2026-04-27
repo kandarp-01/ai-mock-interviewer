@@ -1,20 +1,20 @@
 from fastapi import FastAPI
-from transformers import pipeline
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
 from transformers import pipeline
-feedback_model = pipeline(
-    "text-classification",
-    model="typeform/distilbert-base-uncased-mnli",
-    framework=None
-)
-app=FastAPI()
+
+app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+)
+
+feedback_model = pipeline(
+    "text-classification",
+    model="distilbert-base-uncased-finetuned-sst-2-english"
 )
 
 class Answer(BaseModel):
@@ -23,7 +23,7 @@ class Answer(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message":"AI mock interview is running!"}
+    return {"message": "AI Mock Interviewer Running!"}
 
 @app.post("/feedback")
 def get_feedback(data: Answer):
@@ -41,6 +41,7 @@ def get_feedback(data: Answer):
     result = feedback_model(data.answer)
     sentiment = result[0]["label"]
     score = round(result[0]["score"] * 100, 2)
+
     if sentiment == "POSITIVE" and score >= 90:
         detail = "Excellent answer! Very confident and clear."
     elif sentiment == "POSITIVE" and score >= 75:
@@ -59,6 +60,3 @@ def get_feedback(data: Answer):
         "confidence": f"{score}%",
         "feedback": detail
     }
-
-
-
